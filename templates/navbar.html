@@ -1,0 +1,59 @@
+{% load static %}
+
+<header class="p-3 navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand ms-5" href="{% url 'home' %}">Ecom</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pedidos</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Categories
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+      </ul>
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      </form>
+
+      <div class="d-flex form-inline my-2 my-lg-0 ml-5">
+        <a href="{% url 'cart' %}">
+          <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Imagen carrito">
+        </a>
+        <p id="cart-total">0</p>
+        {% if not user.is_authenticated %}
+        <div class="text-end ms-4 me-5">
+          <a href="{% url 'login' %}" type="button" class="btn btn-outline-light me-2">Login</a>
+          <a href="{% url 'register' %}" type="button" class="btn btn-warning">Sign-up</a>
+        </div>
+        {% else %}
+        <div class="dropdown text-start ms-4 me-5">
+          <!-- d-block link-body-emphasis text-decoration-none dropdown-toggle -->
+          <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{% static 'images/placeholder.png' %}"" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end text-small">
+            <li><a class="dropdown-item" href="#">New order...</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+
+
+    </div>
+  </div>
+</header>
