@@ -18,7 +18,7 @@ class Product(models.Model):
 	category = models.ForeignKey(Category, related_name="products", on_delete=models.SET_NULL, null=True)
 	price = models.FloatField()
 	digital = models.BooleanField(default=False,null=True, blank=True)
-	image = models.ImageField(null=True, blank=True)
+	image = models.ImageField(upload_to='products/')
 
 	def __str__(self):
 		return self.name

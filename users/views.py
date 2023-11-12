@@ -7,6 +7,9 @@ from django.contrib import messages
 class Login(View):
 
   def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.success(request, 'User authenticated') 
+            return redirect('home')
         return render(request, 'users/login.html')
   
   def post(self, request):
@@ -15,15 +18,17 @@ class Login(View):
      user = authenticate(username=username, password=password)
 
      if user:
-        login(user)
-        messages.success(request, f'Welcome back {user.username}!')
+        login(request, user)
+        messages.success(request, f'Welcome back {username}!')
         return redirect('home')
      messages.success(request, 'Username or password does not match!')
      return render(request, 'users/login.html')
 
+
 def register(request):
   pass
   #return render(request, 'users/register.html')
+
 
 class Logout(View):
 
