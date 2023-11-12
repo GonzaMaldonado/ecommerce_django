@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 
+from .forms import RegisterForm
 
 class Login(View):
 
@@ -25,9 +27,29 @@ class Login(View):
      return render(request, 'users/login.html')
 
 
-def register(request):
-  pass
-  #return render(request, 'users/register.html')
+class Register(View):
+
+  def get(self, request, *args, **kwargs):
+    if request.user.is_authenticated:
+       return redirect('home')
+    return render(request, 'users/register.html', {'form': RegisterForm})
+     
+  def post(self, request):
+     form = RegisterForm(request.POST)
+
+     if form.is_valid():
+        user = form.save(commit=False)
+        user.email = user.email.lower()
+        user.save()
+        login(request, user)
+        messages.success(request, f'Welcome {user.username}!')
+        return redirect('home')
+     
+     error_text = form.errors.as_text()
+     error = error_text.split('*')
+     messages.success(request, f'{error[2]}')
+     return HttpResponseRedirect((request.META.get('HTTP_REFERER')))
+
 
 
 class Logout(View):
