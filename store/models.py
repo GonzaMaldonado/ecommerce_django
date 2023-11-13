@@ -16,7 +16,7 @@ class Product(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	name = models.CharField(max_length=200)
 	category = models.ForeignKey(Category, related_name="products", on_delete=models.SET_NULL, null=True)
-	price = models.FloatField()
+	price = models.DecimalField(max_digits=7, decimal_places=2)
 	digital = models.BooleanField(default=False,null=True, blank=True)
 	image = models.ImageField(upload_to='products/')
 
