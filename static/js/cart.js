@@ -1,6 +1,5 @@
 
 let updateCart = document.querySelectorAll('.update-cart')
-console.log("UpdateCart",updateCart);
 
 for (i=0; i < updateCart.length; i++) {
   updateCart[i].addEventListener('click', function(){

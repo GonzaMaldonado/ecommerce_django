@@ -9,7 +9,8 @@
 
     <div class="box-element" id="form-wrapper">
       <form action="" id="form">
-
+        {% csrf_token %}
+        {% if not request.user.is_authenticated %}
         <div id="user-info">
           <div class="form-field">
             <input type="text" name="name" placeholder="Your name..." class="form-control" required>
@@ -18,6 +19,7 @@
             <input type="email" name="email" placeholder="Your email..." class="form-control" required>
           </div>
         </div>
+        {% endif %}
 
         <div id="shipping-info">
           <hr>
@@ -47,6 +49,7 @@
 
     <div class="box-element hidden" id="payment-info">
       <small>Paypal Options</small>
+      <button id="make-payment">Make payment</button>
     </div>
 
   </article>
@@ -73,8 +76,31 @@
 
 <script>
   let shipping = '{{ order.shipping }}'
+  let total = '{{ order.get_cart_total|floatformat:2 }}'
+
   if (shipping == 'False'){
     document.querySelector('#shipping-info').innerHTML = ''
+  }
+
+  if (shipping == 'False' && user != 'AnonymousUser') {
+    document.getElementById('form-wrapper').classList.add('hidden')
+    document.getElementById('payment-info').classList.remove("hidden")
+  }
+
+  const form = document.getElementById('form')
+  form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    console.log("Form Submitted...");
+    document.getElementById('form-button').classList.add("hidden")
+    document.getElementById('payment-info').classList.remove("hidden")
+  })
+
+  document.getElementById('make-payment').addEventListener('click', (e) => {
+    submitFormData()
+  })
+
+  function submitFormData(){
+    console.log("Payment button clicked");
   }
 </script>
 {% endblock %}
