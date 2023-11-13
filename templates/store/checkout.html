@@ -70,4 +70,11 @@
     </div>
   </article>
 </section>
+
+<script>
+  let shipping = '{{ order.shipping }}'
+  if (shipping == 'False'){
+    document.querySelector('#shipping-info').innerHTML = ''
+  }
+</script>
 {% endblock %}
