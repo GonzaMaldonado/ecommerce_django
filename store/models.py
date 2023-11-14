@@ -39,8 +39,11 @@ class Order(models.Model):
 	complete = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, null=True)
 
+	class Meta:
+		ordering = ['-date_ordered']
+
 	def __str__(self):
-		return str(self.id)
+		return f'{self.id} hecha por {self.user}'
 		
 	@property
 	def shipping(self):
@@ -71,6 +74,12 @@ class OrderItem(models.Model):
 	quantity = models.IntegerField(default=1, null=True, blank=True)
 	date_added = models.DateTimeField(auto_now_add=True)
 
+	class Meta:
+		ordering = ['-date_added']
+
+	def __str__(self):
+		return f'{self.id} de order {self.order}'
+
 	@property
 	def get_total(self):
 		total = self.product.price * self.quantity
@@ -91,4 +100,4 @@ class ShippingAddress(models.Model):
 		ordering = ['-date_added']
 
 	def __str__(self):
-		return self.address
+		return f'A {self.address} hecha por {self.user}'

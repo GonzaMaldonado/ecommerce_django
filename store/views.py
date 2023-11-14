@@ -3,7 +3,8 @@ import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Product, Order, OrderItem, Category, ShippingAddress
-from .utils import cartData
+from .utils import cartData, guestOrder
+
 
 def home(request):
   products = Product.objects.all()
@@ -58,25 +59,27 @@ def process_order(request):
 
   if request.user.is_authenticated:
     order, created = Order.objects.get_or_create(user=request.user, complete=False)
+
+  else:
+    user, order = guestOrder(request, data)
+
     total = float(data['form']['total'])
     order.transaction_id = transaction_id
 
-    if total == order.get_cart_total:
+    if total == float(order.get_cart_total):
       order.complete = True
     order.save()
 
     if order.shipping == True:
       ShippingAddress.objects.create(
-        user=request.user,
+        user=user,
         order=order,
         address=data['shipping']['address'],
         city=data['shipping']['city'],
         state=data['shipping']['state'],
         zipcode=data['shipping']['zipcode']
       )
-
-  else:
-    print('User is not login')
-
+    
+  
   return JsonResponse('Payment complete', safe=False)
   

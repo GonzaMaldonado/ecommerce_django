@@ -1,5 +1,7 @@
 import json
-from .models import Product, Order
+from random import randint
+from .models import Product, Order, OrderItem
+from users.models import User
 
 def cookieCart(request):
   try:
@@ -46,3 +48,31 @@ def cartData(request):
     order = cookieData['order']
     
   return {'order': order, 'items': items}
+
+
+def guestOrder(request, data):
+    print('User is not logged in')
+    print('COOKIE:', request.COOKIES)
+    name = data['form']['name']
+    username = f'{name}_{randint(0, 10000)}'
+    email = data['form']['email']
+
+    cookieData = cookieCart(request)
+    items = cookieData['items']
+
+    user, created = User.objects.get_or_create(
+      username=username,
+      email=email
+    )
+    user.save()
+
+    order = Order.objects.create(user=user, complete=False)
+
+    for item in items:
+      product = Product.objects.get(id=item['product']['id'])
+      orderItem = OrderItem.objects.create(
+        product=product,
+        order=order,
+        quantity=item['quantity']
+      )
+    return user, order
