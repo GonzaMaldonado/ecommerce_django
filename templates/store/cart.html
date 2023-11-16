@@ -30,7 +30,6 @@
         <div style="flex: 1;"><strong>Total</strong></div>
       </div>
       {% for item in items %}
-      {{ item.product }}
       <div class="cart-row">
         {% for image in item.product.images %}
         <div style="flex: 2;"><img src="{{ image }}" alt="Imagen de {{item.product.name}}" class="row-image"></div>

@@ -75,15 +75,14 @@ def create_checkout_session(request):
             # For full details see https://stripe.com/docs/api/checkout/sessions/create
             # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
             if request.user.is_authenticated:
-              cart_items = OrderItem.objects.filter(user=request.user)
+              items = cartData(request)
+              cart_items = items['items']
             else:
               items = cookieCart(request)
               cart_items = items['items']
-              print("Checkout_session: ",cart_items)
                
             line_items = []
             for item in cart_items:
-                print("Item: ",item['product'])
                 line_items.append({
                     'price_data': {
                         'currency': 'usd',
@@ -95,7 +94,6 @@ def create_checkout_session(request):
                     'quantity': item['quantity']
                 })
 
-            print("Line Items: ",line_items)
 
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
@@ -104,6 +102,13 @@ def create_checkout_session(request):
                 mode='payment',
                 line_items=line_items
             )
+            total = checkout_session['amount_total'] / 100
+            if request.user.is_authenticated:
+              order = Order.objects.create(id=checkout_session['id'] ,user=request.user, total=total)
+              order.save()
+              OrderItem.objects.filter(user=request.user).delete()
+            else:
+              Order.objects.create(id=checkout_session['id'], total=total)
             return JsonResponse({'sessionId': checkout_session['id']})
         except Exception as e:
             return JsonResponse({'error': str(e)})
@@ -139,21 +144,15 @@ def stripe_webhook(request):
 # Para usuarios autenticados
 def update_item(request):
   data = json.loads(request.body)
-  print(data)
   action = data['action']
   productId = data['productId']
   product = stripe.Product.retrieve(productId)
   amount = stripe.Price.list(product=product.id)
   price = amount.data[0].unit_amount / 100
 
-
-  """ product = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.IntegerField(default=1, null=True, blank=True)
-    digital = models.BooleanField(default=False) """
   orderItem, created = OrderItem.objects.get_or_create(
      user=request.user,
-     product=product.name,
+     product=productId,
      price=price,
      digital=product.metadata.digital
   )
@@ -172,31 +171,7 @@ def update_item(request):
 
 def process_order(request):
   pass
-  """ data = json.loads(request.body)
-
-  if request.user.is_authenticated:
-    order, created = Order.objects.get_or_create(user=request.user, complete=False)
-
-  else:
-    #user, order = guestOrder(request, data)
-
-    total = float(data['form']['total'])
-
-    if total == float(order.get_cart_total):
-      order.complete = True
-    order.save()
-
-    if order.shipping == True:
-      ShippingAddress.objects.create(
-        user=user,
-        order=order,
-        address=data['shipping']['address'],
-        city=data['shipping']['city'],
-        state=data['shipping']['state'],
-        zipcode=data['shipping']['zipcode']
-      )
-    
-  
+  """ 
   return JsonResponse('Payment complete', safe=False) """
   
 class SuccessView(TemplateView):

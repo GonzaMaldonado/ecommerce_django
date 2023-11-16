@@ -102,6 +102,11 @@
     })
     .then((res) => {
       console.log(res);
+      alert('Transaction completed!')
+
+      cart = {}
+      document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+      
     })
     .catch((e) => {
       console.error("Error: ",e);

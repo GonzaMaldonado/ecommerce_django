@@ -14,7 +14,7 @@ class Category(models.Model):
 
 
 class Order(models.Model):
-	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+	id = models.CharField(primary_key=True, max_length=100)
 	user = models.ForeignKey(User, related_name="orders" ,on_delete=models.SET_NULL, null=True, blank=True)
 	date_ordered = models.DateTimeField(auto_now_add=True)
 	complete = models.BooleanField(default=False)

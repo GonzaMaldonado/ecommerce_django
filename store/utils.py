@@ -50,18 +50,36 @@ def cartData(request):
     get_cart_items= 0
     get_cart_total= 0
     shipping = False
-    items = OrderItem.objects.filter(user=request.user)
-    print(items)
+    orders = OrderItem.objects.filter(user=request.user)
 
-    for item in items:
-       get_cart_items += item.quantity
-       get_cart_total += item.get_total
-       if item.digital == False:
-          shipping = True
+    items = []
+    for order in orders:
+      try:
+        product = stripe.Product.retrieve(order.product)
+        price = order.price
+        total = price * order.quantity
+        get_cart_total += total
+        get_cart_items += order.quantity
+        item = {
+          'product': {
+            'id': product.id,
+            'name': product.name,
+            'price': price,
+            'images': product.images
+          },
+          'quantity': order.quantity,
+          'get_total': total,
+        }
+
+        items.append(item)
+        if order.digital == False:
+          shipping = True    
+      except:
+       pass
+
   else:
     cookieData = cookieCart(request)
     items = cookieData['items']
-    print(items)
     get_cart_items = cookieData['get_cart_items']
     get_cart_total = cookieData['get_cart_total']
     shipping = cookieData['shipping']
