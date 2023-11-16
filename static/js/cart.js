@@ -14,8 +14,8 @@ for (i=0; i < updateCart.length; i++) {
   })
 }
 
+// Para usuario no autenticados
 function addCookieItem(productId, action) {
-  console.log("User is not authenticated");
 
   if (action == 'add') {
     if (cart[productId] == undefined) {
@@ -34,11 +34,11 @@ function addCookieItem(productId, action) {
     }
   }
 
-  console.log('Cart:', cart);
   document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
-  location.reload()
+  //location.reload()
 }
 
+// Para usuario autenticados
 function updateUserOrder(productId, action) {
   let url = '/update_item/'
   fetch(url,

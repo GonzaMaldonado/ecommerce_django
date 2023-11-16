@@ -1,7 +1,9 @@
 import json
+import stripe
 from random import randint
-from .models import Product, Order, OrderItem
+from .models import Order, OrderItem
 from users.models import User
+
 
 def cookieCart(request):
   try:
@@ -10,69 +12,89 @@ def cookieCart(request):
       cart= {}
 
   items = []
-  order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping': False}
+  get_cart_items = 0
+  get_cart_total = 0
+  shipping = False
 
-  for i in cart:
+
+  for product_id in cart:
     try:
-        product = Product.objects.get(id=i)
-        total = product.price * cart[i]['quantity']
-        order['get_cart_total'] += total
-        order['get_cart_items'] += cart[i]['quantity']
+        product = stripe.Product.retrieve(product_id)
+        amount = stripe.Price.list(product=product.id)
+        price = amount.data[0].unit_amount / 100
+        total = price * cart[product_id]['quantity']
+        get_cart_total += total
+        get_cart_items += cart[product_id]['quantity']
         item = {
           'product': {
             'id': product.id,
             'name': product.name,
-            'price': product.price,
-            'imageURL': product.imageURL
+            'price': price,
+            'images': product.images
           },
-          'quantity': cart[i]['quantity'],
-          'get_total': total
+          'quantity': cart[product_id]['quantity'],
+          'get_total': total,
         }
-        items.append(item)
 
-        if product.digital == False:
-          order['shipping'] = True
+        items.append(item)
+        if product.metadata.digital == False:
+          shipping = True       
     except:
         pass
 
-  return {'items': items, 'order': order}
+  return {'items': items, 'shipping': shipping, 'get_cart_items': get_cart_items, 'get_cart_total': get_cart_total}
 
 
 def cartData(request):
   if request.user.is_authenticated:
-    order, created = Order.objects.get_or_create(user=request.user, complete=False)
-    items = order.orderitems.all()
+    get_cart_items= 0
+    get_cart_total= 0
+    shipping = False
+    items = OrderItem.objects.filter(user=request.user)
+    print(items)
+
+    for item in items:
+       get_cart_items += item.quantity
+       get_cart_total += item.get_total
+       if item.digital == False:
+          shipping = True
   else:
     cookieData = cookieCart(request)
     items = cookieData['items']
-    order = cookieData['order']
+    print(items)
+    get_cart_items = cookieData['get_cart_items']
+    get_cart_total = cookieData['get_cart_total']
+    shipping = cookieData['shipping']
     
-  return {'order': order, 'items': items}
+  return {'items': items, 'get_cart_items': get_cart_items, 'get_cart_total': get_cart_total, 'shipping': shipping}
 
-
-def guestOrder(request, data):
+# Cuando un usuario hace un pedido y no esta autenticado
+""" def guestOrder(request, data):
     print('User is not logged in')
-    print('COOKIE:', request.COOKIES)
-    name = data['form']['name']
-    username = f'{name}_{randint(0, 10000)}'
-    email = data['form']['email']
+    #name = data['form']['name']
+    #username = f'{name}_{randint(0, 10000)}'
+    #email = data['form']['email']
 
     cookieData = cookieCart(request)
+    print(cookieData)
     items = cookieData['items']
 
-    user, created = User.objects.get_or_create(
-      username=username,
-      email=email
-    )
-    user.save()
+    #user, created = User.objects.get_or_create(
+     # username=username,
+      #email=email
+    #)
+    #user.save()
 
-    order = Order.objects.create(user=user, complete=False)
+    #order = Order.objects.create(user=user, complete=False)
 
     for item in items:
-      product = Product.objects.get(id=item['product']['id'])
+      product = stripe.Product.retrieve(item['product']['id'])
+      amount = stripe.Price.list(product=product.id)
+      price = amount.data[0].unit_amount / 100
       orderItem = OrderItem.objects.create(
-        product=product,
-        order=order,
+        product=product.id,
+        price=price,
         quantity=item['quantity']
       )
-    return user, order
+      print(items)
+    return items """

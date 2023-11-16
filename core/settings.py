@@ -106,3 +106,6 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51NQi12EK5j3KRRIYSCfEppKuUbUOLcDtsUi4rhm6Fo8ajE53fc4fCW5IWcamB5QkisNMZJseoUhAKFx2mOx2Fg3Y00vFnszkJP'
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')

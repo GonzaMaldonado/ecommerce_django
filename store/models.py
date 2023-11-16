@@ -12,32 +12,14 @@ class Category(models.Model):
 		return self.name
 
 
-class Product(models.Model):
-	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	name = models.CharField(max_length=200)
-	category = models.ForeignKey(Category, related_name="products", on_delete=models.SET_NULL, null=True)
-	price = models.DecimalField(max_digits=7, decimal_places=2)
-	digital = models.BooleanField(default=False,null=True, blank=True)
-	image = models.ImageField(upload_to='products/')
-
-	def __str__(self):
-		return self.name
-
-	@property
-	def imageURL(self):
-		try:
-			url = self.image.url
-		except:
-			url = ''
-		return url
-
 
 class Order(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	user = models.ForeignKey(User, related_name="orders" ,on_delete=models.SET_NULL, null=True, blank=True)
 	date_ordered = models.DateTimeField(auto_now_add=True)
 	complete = models.BooleanField(default=False)
-	transaction_id = models.CharField(max_length=100, null=True)
+	total = models.DecimalField(max_digits=10, decimal_places=2)
+
 
 	class Meta:
 		ordering = ['-date_ordered']
@@ -45,45 +27,51 @@ class Order(models.Model):
 	def __str__(self):
 		return f'{self.id} hecha por {self.user}'
 		
-	@property
+	""" @property
 	def shipping(self):
 		shipping = False
-		orderitems = self.orderitems.all()
-		for i in orderitems:
-			if i.product.digital == False:
+		for item in self.items:
+			if item.digital == False:
 				shipping = True
-		return shipping
+		return shipping """
 
-	@property
-	def get_cart_total(self):
-		orderitems = self.orderitems.all()
-		total = sum([item.get_total for item in orderitems])
-		return total 
+	""" 	@property
+		def get_cart_total(self):
+			#orderitems = self.items.all()
+			total = sum([item.get_total for item in self.items])
+			return total  """
 
-	@property
+	""" @property
 	def get_cart_items(self):
-		orderitems = self.orderitems.all()
-		total = sum([item.quantity for item in orderitems])
-		return total 
+		#orderitems = self.orderitems.all()
+		total = sum([item.quantity for item in self.items])
+		return total  """
+
 
 
 class OrderItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	product = models.ForeignKey(Product, related_name="orderitems" ,on_delete=models.SET_NULL, null=True)
-	order = models.ForeignKey(Order, related_name="orderitems" ,on_delete=models.SET_NULL, null=True)
-	quantity = models.IntegerField(default=1, null=True, blank=True)
+	product = models.CharField(max_length=100)
+	user = models.ForeignKey(User, related_name="orderitems", on_delete=models.SET_NULL, null=True)
+	price = models.DecimalField(max_digits=10, decimal_places=2)
+	quantity = models.IntegerField(default=0, null=True, blank=True)
+	digital = models.BooleanField(default=False)
 	date_added = models.DateTimeField(auto_now_add=True)
+
 
 	class Meta:
 		ordering = ['-date_added']
 
 	def __str__(self):
-		return f'{self.id} de order {self.order}'
+		return f'{self.product} - {self.quantity}'
 
 	@property
 	def get_total(self):
-		total = self.product.price * self.quantity
+		total = self.price * self.quantity
 		return total
+
+
+
 
 class ShippingAddress(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)

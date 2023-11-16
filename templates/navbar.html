@@ -12,16 +12,9 @@
           <a class="nav-link" href="#">Pedidos</a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link" href="#">
             Categories
           </a>
-          <ul class="dropdown-menu">
-            {% for category in categories %}
-            <li><a class="dropdown-item" href="#">{{ category.name }}</a></li>
-            {% endfor %}
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">All Categories</a></li>
-          </ul>
         </li>
       </ul>
       <form class="d-flex" role="search">
@@ -32,7 +25,7 @@
         <a href="{% url 'cart' %}">
           <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Imagen carrito">
         </a>
-        <p id="cart-total">{{ order.get_cart_items }}</p>
+        <p id="cart-total">{{ get_cart_items }}</p>
         {% if not user.is_authenticated %}
         <div class="text-end ms-4 me-5">
           <a href="{% url 'login' %}" type="button" class="btn btn-outline-light me-2">Login</a>

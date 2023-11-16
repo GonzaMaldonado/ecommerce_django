@@ -3,6 +3,11 @@
 
 {% block title %} Checkout {% endblock %}
 
+{% block script %}
+<script src="https://js.stripe.com/v3/"></script> 
+{% endblock script %}
+
+
 {% block content %}
 <section class="row">
   <article class="col-lg-6">
@@ -21,6 +26,7 @@
         </div>
         {% endif %}
 
+        {% if shipping %}
         <div id="shipping-info">
           <hr>
           <h4>Shipping Information:</h4>
@@ -38,6 +44,7 @@
             <input type="text" name="state" placeholder="State..." class="form-control">
           </div>
         </div>
+        {% endif %}
 
         <hr>
         <input type="submit" id="form-button" class="btn btn-success col-12" value="Continue">
@@ -47,9 +54,9 @@
 
     <br>
 
-    <div class="box-element hidden" id="payment-info">
-      <small>Paypal Options</small>
-      <button id="make-payment">Make payment</button>
+    <div class="box-element text-center hidden" id="payment-info">
+      <small>Payment card</small>
+      <button class="button is-primary btn btn-primary w-100 rounded mt-1 mb-2 p-2" id="submitBtn">Purchase!</button>
     </div>
 
   </article>
@@ -62,25 +69,48 @@
       <hr>
       {% for item in items %}
       <div class="cart-row">
-        <div style="flex: 2;"><img src="{{ item.product.imageURL }}" alt="" class="row-image"></div>
+        {% for image in item.product.images %}
+        <div style="flex: 2;"><img src="{{ image }}" alt="" class="row-image"></div>
+        {% endfor %}
         <div style="flex: 2;"><p>{{ item.product.name }}</p></div>
         <div style="flex: 1;"><p>${{ item.product.price|floatformat:2 }}</p></div>
         <div style="flex: 1;"><p>x{{ item.quantity }}</p></div>
       </div>
       {% endfor %}
-      <h5>Items:&nbsp; &nbsp; {{ order.get_cart_items }}</h5>
-      <h5>Total:&nbsp; &nbsp; ${{ order.get_cart_total|floatformat:2 }}</h5>
+      <h5>Items:&nbsp; &nbsp; {{ get_cart_items }}</h5>
+      <h5>Total:&nbsp; &nbsp; ${{ get_cart_total|floatformat:2 }}</h5>
     </div>
   </article>
 </section>
 
 <script>
-  let shipping = '{{ order.shipping }}'
-  let total = '{{ order.get_cart_total }}'
+  fetch("/config/")
+  .then((result) => { return result.json(); })
+  .then((data) => {
+    // Initialize Stripe.js
+    const stripe = Stripe(data.publicKey);
 
-  if (shipping == 'False'){
-    document.querySelector('#shipping-info').innerHTML = ''
-  }
+  // Event handler
+  document.querySelector("#submitBtn").addEventListener("click", () => {
+    // Get Checkout Session ID
+    fetch("/create-checkout-session/")
+    .then((result) => { return result.json(); })
+    .then((data) => {
+      console.log(data);
+      // Redirect to Stripe Checkout
+      return stripe.redirectToCheckout({sessionId: data.sessionId})
+    })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((e) => {
+      console.error("Error: ",e);
+    })
+  });
+});
+
+  let shipping = '{{ shipping }}'
+  let total = '{{ get_cart_total }}'
 
   if (shipping == 'False' && user != 'AnonymousUser') {
     document.getElementById('form-wrapper').classList.add('hidden')
@@ -93,14 +123,14 @@
 
   form.addEventListener('submit', (e) => {
     e.preventDefault()
-    console.log("Form Submitted...");
+    console.log("Form Shipping Address Submitted...");
     document.getElementById('form-button').classList.add("hidden")
     document.getElementById('payment-info').classList.remove("hidden")
   })
 
-  document.getElementById('make-payment').addEventListener('click', (e) => {
-    submitFormData()
-  })
+  
+ /*
+
 
   function submitFormData(){
     console.log("Payment button clicked");
@@ -150,7 +180,8 @@
       document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
       
       window.location.href = "{% url 'home' %}"
-    })
+    }) 
   }
+    */
 </script>
 {% endblock %}
