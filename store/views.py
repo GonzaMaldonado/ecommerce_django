@@ -1,7 +1,7 @@
 import json
 import stripe
 from django.views.generic import TemplateView
-from .models import Order, OrderItem, Category, ShippingAddress
+from .models import Order, CartItem, Category, ShippingAddress
 from .utils import cartData, cookieCart
 
 from django.conf import settings
@@ -21,7 +21,11 @@ class Home(TemplateView):
     for product ,price in zip(products, prices):
        product['price'] = price.unit_amount / 100
 
-    data = cartData(self.request)
+    if self.request.user.is_authenticated:
+      data = cartData(self.request)
+    else:
+       data = cookieCart(self.request)
+
     context['get_cart_items'] = data['get_cart_items']
     context['products'] = products
     context['prices'] = prices
@@ -33,7 +37,10 @@ class Cart(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
-    data = cartData(self.request)
+    if self.request.user.is_authenticated:
+      data = cartData(self.request)
+    else:
+       data = cookieCart(self.request)
     context['items'] = data['items']
     context['get_cart_items'] = data['get_cart_items']
     context['get_cart_total'] = data['get_cart_total']
@@ -45,7 +52,10 @@ class Checkout(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
-    data = cartData(self.request)
+    if self.request.user.is_authenticated:
+      data = cartData(self.request)
+    else:
+       data = cookieCart(self.request)
     context['items'] = data['items']
     context['get_cart_items'] = data['get_cart_items']
     context['get_cart_total'] = data['get_cart_total']
@@ -106,7 +116,7 @@ def create_checkout_session(request):
             if request.user.is_authenticated:
               order = Order.objects.create(id=checkout_session['id'] ,user=request.user, total=total)
               order.save()
-              OrderItem.objects.filter(user=request.user).delete()
+              CartItem.objects.filter(user=request.user).delete()
             else:
               Order.objects.create(id=checkout_session['id'], total=total)
             return JsonResponse({'sessionId': checkout_session['id']})
@@ -150,7 +160,7 @@ def update_item(request):
   amount = stripe.Price.list(product=product.id)
   price = amount.data[0].unit_amount / 100
 
-  orderItem, created = OrderItem.objects.get_or_create(
+  cartItem, created = CartItem.objects.get_or_create(
      user=request.user,
      product=productId,
      price=price,
@@ -158,14 +168,14 @@ def update_item(request):
   )
 
   if action == 'add':
-    orderItem.quantity += 1
+    cartItem.quantity += 1
   elif action == 'remove':
-    orderItem.quantity -= 1
+    cartItem.quantity -= 1
 
-  orderItem.save()
+  cartItem.save()
 
-  if orderItem.quantity <= 0:
-    orderItem.delete()
+  if cartItem.quantity <= 0:
+    cartItem.delete()
   return JsonResponse('Item was added', safe=False)
 
 

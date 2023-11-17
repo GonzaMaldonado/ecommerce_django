@@ -18,6 +18,7 @@ class Order(models.Model):
 	user = models.ForeignKey(User, related_name="orders" ,on_delete=models.SET_NULL, null=True, blank=True)
 	date_ordered = models.DateTimeField(auto_now_add=True)
 	complete = models.BooleanField(default=False)
+	shipping = models.BooleanField(default=False)
 	total = models.DecimalField(max_digits=10, decimal_places=2)
 
 
@@ -25,31 +26,11 @@ class Order(models.Model):
 		ordering = ['-date_ordered']
 
 	def __str__(self):
-		return f'{self.id} hecha por {self.user}'
-		
-	""" @property
-	def shipping(self):
-		shipping = False
-		for item in self.items:
-			if item.digital == False:
-				shipping = True
-		return shipping """
-
-	""" 	@property
-		def get_cart_total(self):
-			#orderitems = self.items.all()
-			total = sum([item.get_total for item in self.items])
-			return total  """
-
-	""" @property
-	def get_cart_items(self):
-		#orderitems = self.orderitems.all()
-		total = sum([item.quantity for item in self.items])
-		return total  """
+		return f'Pedido de {self.user} - {self.date_ordered}'
 
 
 
-class OrderItem(models.Model):
+class CartItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	product = models.CharField(max_length=100)
 	user = models.ForeignKey(User, related_name="orderitems", on_delete=models.SET_NULL, null=True)
@@ -63,7 +44,7 @@ class OrderItem(models.Model):
 		ordering = ['-date_added']
 
 	def __str__(self):
-		return f'{self.product} - {self.quantity}'
+		return f'{self.product} - x{self.quantity}'
 
 	@property
 	def get_total(self):

@@ -5,7 +5,6 @@ for (i=0; i < updateCart.length; i++) {
   updateCart[i].addEventListener('click', function(){
     let productId = this.dataset.product
     let action = this.dataset.action
-    
     if(user == 'AnonymousUser') {
       addCookieItem(productId, action)
     } else {
@@ -35,7 +34,7 @@ function addCookieItem(productId, action) {
   }
 
   document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
-  //location.reload()
+  location.reload()
 }
 
 // Para usuario autenticados

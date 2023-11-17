@@ -26,6 +26,7 @@
         </div>
         {% endif %}
 
+        {{ cart }}
         {% if shipping %}
         <div id="shipping-info">
           <hr>
@@ -116,11 +117,6 @@
 
   let shipping = '{{ shipping }}'
   let total = '{{ get_cart_total }}'
-
-  if (shipping == 'False' && user != 'AnonymousUser') {
-    document.getElementById('form-wrapper').classList.add('hidden')
-    document.getElementById('payment-info').classList.remove("hidden")
-  }
 
   const form = document.getElementById('form')
 
