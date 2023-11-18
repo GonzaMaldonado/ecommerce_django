@@ -26,7 +26,6 @@
         </div>
         {% endif %}
 
-        {{ cart }}
         {% if shipping %}
         <div id="shipping-info">
           <hr>
@@ -68,18 +67,16 @@
       <hr>
       <h3>Order Summary</h3>
       <hr>
-      {% for item in items %}
+      {% for item in cart %}
       <div class="cart-row">
-        {% for image in item.product.images %}
-        <div style="flex: 2;"><img src="{{ image }}" alt="" class="row-image"></div>
-        {% endfor %}
-        <div style="flex: 2;"><p>{{ item.product.name }}</p></div>
-        <div style="flex: 1;"><p>${{ item.product.price|floatformat:2 }}</p></div>
+        <div style="flex: 2;"><img src="{{ item.image }}" alt="" class="row-image"></div>
+        <div style="flex: 2;"><p>{{ item.name }}</p></div>
+        <div style="flex: 1;"><p>${{ item.price|floatformat:2 }}</p></div>
         <div style="flex: 1;"><p>x{{ item.quantity }}</p></div>
       </div>
       {% endfor %}
-      <h5>Items:&nbsp; &nbsp; {{ get_cart_items }}</h5>
-      <h5>Total:&nbsp; &nbsp; ${{ get_cart_total|floatformat:2 }}</h5>
+      <h5>Items:&nbsp; &nbsp; {{ quantity }}</h5>
+      <h5>Total:&nbsp; &nbsp; ${{ total|floatformat:2 }}</h5>
     </div>
   </article>
 </section>
@@ -116,7 +113,6 @@
 });
 
   let shipping = '{{ shipping }}'
-  let total = '{{ get_cart_total }}'
 
   const form = document.getElementById('form')
 

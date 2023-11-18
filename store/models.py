@@ -1,16 +1,6 @@
+import uuid
 from django.db import models
 from users.models import User
-import uuid
-
-class Category(models.Model):
-	name = models.CharField(max_length=40)
-
-	class Meta:
-		verbose_name_plural='Categories'
-
-	def __str__(self):
-		return self.name
-
 
 
 class Order(models.Model):
@@ -31,8 +21,9 @@ class Order(models.Model):
 
 
 class CartItem(models.Model):
-	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	product = models.CharField(max_length=100)
+	id = models.CharField(primary_key=True, max_length=255)
+	name= models.CharField(max_length=100)
+	image = models.CharField(max_length=255)
 	user = models.ForeignKey(User, related_name="orderitems", on_delete=models.SET_NULL, null=True)
 	price = models.DecimalField(max_digits=10, decimal_places=2)
 	quantity = models.IntegerField(default=0, null=True, blank=True)
@@ -44,7 +35,7 @@ class CartItem(models.Model):
 		ordering = ['-date_added']
 
 	def __str__(self):
-		return f'{self.product} - x{self.quantity}'
+		return f'{self.name} - x{self.quantity}'
 
 	@property
 	def get_total(self):
@@ -70,3 +61,4 @@ class ShippingAddress(models.Model):
 
 	def __str__(self):
 		return f'A {self.address} hecha por {self.user}'
+	

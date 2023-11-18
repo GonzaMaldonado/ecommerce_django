@@ -1,8 +1,7 @@
 import json
 import stripe
 from django.views.generic import TemplateView
-from .models import Order, CartItem, Category, ShippingAddress
-from .utils import cartData, cookieCart
+from .models import Order, CartItem, ShippingAddress
 
 from django.conf import settings
 from django.http.response import HttpResponse, JsonResponse
@@ -21,12 +20,6 @@ class Home(TemplateView):
     for product ,price in zip(products, prices):
        product['price'] = price.unit_amount / 100
 
-    if self.request.user.is_authenticated:
-      data = cartData(self.request)
-    else:
-       data = cookieCart(self.request)
-
-    context['get_cart_items'] = data['get_cart_items']
     context['products'] = products
     context['prices'] = prices
     return context
@@ -35,32 +28,10 @@ class Home(TemplateView):
 class Cart(TemplateView):
   template_name = "store/cart.html"
 
-  def get_context_data(self, **kwargs):
-    context = super().get_context_data(**kwargs)
-    if self.request.user.is_authenticated:
-      data = cartData(self.request)
-    else:
-       data = cookieCart(self.request)
-    context['items'] = data['items']
-    context['get_cart_items'] = data['get_cart_items']
-    context['get_cart_total'] = data['get_cart_total']
-    return context
 
 
 class Checkout(TemplateView):
   template_name = "store/checkout.html"
-
-  def get_context_data(self, **kwargs):
-    context = super().get_context_data(**kwargs)
-    if self.request.user.is_authenticated:
-      data = cartData(self.request)
-    else:
-       data = cookieCart(self.request)
-    context['items'] = data['items']
-    context['get_cart_items'] = data['get_cart_items']
-    context['get_cart_total'] = data['get_cart_total']
-    context['shipping'] = data['shipping']
-    return context
 
 
 @csrf_exempt
@@ -84,21 +55,16 @@ def create_checkout_session(request):
             # [customer_email] - prefill the email input in the form
             # For full details see https://stripe.com/docs/api/checkout/sessions/create
             # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
-            if request.user.is_authenticated:
-              items = cartData(request)
-              cart_items = items['items']
-            else:
-              items = cookieCart(request)
-              cart_items = items['items']
+            
                
             line_items = []
-            for item in cart_items:
+            for item in request.cart:
                 line_items.append({
                     'price_data': {
                         'currency': 'usd',
-                        'unit_amount': int(item['product']['price'] * 100),  # El precio debe estar en centavos
+                        'unit_amount': int(item['price'] * 100),  # El precio debe estar en centavos
                         'product_data': {
-                            'name': item['product']['name'],
+                            'name': item['name'],
                         }
                     },
                     'quantity': item['quantity']
@@ -162,7 +128,9 @@ def update_item(request):
 
   cartItem, created = CartItem.objects.get_or_create(
      user=request.user,
-     product=productId,
+     id=productId,
+     name=product.name,
+     image=product.images[0],
      price=price,
      digital=product.metadata.digital
   )
