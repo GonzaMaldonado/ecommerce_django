@@ -25,6 +25,20 @@ class Home(TemplateView):
     return context
 
 
+class DetailProduct(TemplateView):
+  template_name = 'store/detail_product.html'
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    product = stripe.Product.retrieve(self.kwargs['id'])
+    price = stripe.Price.list(product=product.id)
+
+    context['product'] = product
+    context['price'] = price.data[0].unit_amount / 100
+    return context
+
+
 class Cart(TemplateView):
   template_name = "store/cart.html"
 

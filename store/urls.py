@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import (Home, Cart, Checkout, stripe_config, create_checkout_session,
+from .views import (Home, DetailProduct, Cart, Checkout, stripe_config, create_checkout_session,
                     update_item, process_order, SuccessView, CancelledView)
 
 urlpatterns = [
   path('', Home.as_view(), name="home"),
+  path('<str:id>/', DetailProduct.as_view(), name="product_detail"),
   path('cart/', Cart.as_view(), name="cart"),
   path('checkout/', Checkout.as_view(), name="checkout"),
   path('config/', stripe_config, name="config"),
