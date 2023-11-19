@@ -6,7 +6,7 @@ from .models import Order, CartItem, ShippingAddress
 from django.conf import settings
 from django.http.response import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 
 
 class Home(TemplateView): 
@@ -37,6 +37,16 @@ class DetailProduct(TemplateView):
     context['product'] = product
     context['price'] = price.data[0].unit_amount / 100
     return context
+
+
+class MyOrders(TemplateView):
+   template_name = 'store/my_orders.html'
+
+   def get_context_data(self, **kwargs):
+      context = super().get_context_data(**kwargs)
+      orders = Order.objects.filter(user=self.request.user)
+      context['orders'] = orders
+      return context
 
 
 class Cart(TemplateView):

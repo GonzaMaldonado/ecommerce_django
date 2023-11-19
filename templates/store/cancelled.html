@@ -1,11 +1,13 @@
 {% extends 'index.html' %}
-{% block title %} Django + Stripe Checkout {% endblock %}
+{% block title %} Stripe Checkout {% endblock %}
 
 {% block content %}
   <section class="section">
-    <div class="container">
-      <p class="fw-bold text-center">Your payment was cancelled.</p>
-      <a href="{% url 'home' %}" class="btn btn-primary p-3 text-center">Back to Home</a>
+    <div class="container text-center py-3">
+      <p class="fw-bolder font-monospace p-1 text-center d-inline">Your payment was cancelled</p>
+      <div class="d-inline rounded-5 bg-danger p-1"><i class="fas fa-times text-white p-1"></i></div>
+      
+      <a href="{% url 'home' %}" class="d-block w-50 m-auto mt-3 font-monospace p-2 rounded  btn btn-primary text-center">Back to home.</a>
     </div>
   </section>
 {% endblock content %}

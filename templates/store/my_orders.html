@@ -1,0 +1,39 @@
+{% extends 'index.html' %}
+
+{% block title %}My Orders{% endblock title %}
+
+{% block content %}
+  <div class="container py-3 bg-body-tertiary">
+    <div class="row row-cols-1 row-cols-lg-2 g-1">
+      {% if orders.all.count == 0 %}
+        <h4>No Orders Found</h4>
+      {% else %}
+        {% for order in orders %}
+        <div class="col card shadow-sm p-3">
+          <p class="card-text fst-italic small mt-2">ID: {{order.id}}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="card-title d-inline">Shipping: 
+              {% if order.shipping %}
+                <div class="d-inline rounded-5 bg-success"><i class="fas fa-check text-white p-1"></i></div>
+              {% else %}
+                <div class="d-inline rounded-5 bg-danger"><i class="fas fa-times text-white p-1"></i></div>
+              {% endif %}
+            </h6>
+            <h6 class="card-title d-inline">Complete: 
+              {% if order.complete %}
+                <div class="d-inline rounded-5 bg-success"><i class="fas fa-check text-white p-1"></i></div>
+              {% else %}
+                <div class="d-inline rounded-5 bg-danger"><i class="fas fa-times text-white p-1"></i></div>
+              {% endif %}
+            </h6>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="text-bg-secondary p-1 rounded">${{order.total}}</p>
+            <small class="text-body-secondary">{{order.date_ordered}}</small>
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
