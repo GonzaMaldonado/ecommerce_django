@@ -11,7 +11,6 @@
 {% block content %}
 <section class="row">
   <article class="col-lg-6">
-
     <div class="box-element" id="form-wrapper">
       <form action="" id="form">
         {% csrf_token %}
@@ -54,16 +53,16 @@
 
     <br>
 
-    <div class="box-element text-center hidden" id="payment-info">
+    <form action="/create-checkout-session/" method="get" class="box-element text-center hidden" id="payment-info">
       <small>Payment card</small>
-      <button class="button is-primary btn btn-primary w-100 rounded mt-1 mb-2 p-2" id="submitBtn">Purchase!</button>
-    </div>
+      <button type="submit" id="checkout-button" class="button is-primary btn btn-primary w-100 rounded mt-1 mb-2 p-2">Checkout</button>
+    </form>
 
   </article>
 
   <article class="col-lg-6">
     <div class="box-element">
-      <a href="{% url 'cart' %}" class="btn btn-outline-dark">&#x2190; Back to Cart</a>
+      <a href="{% url 'cart_page' %}" class="btn btn-outline-dark">&#x2190; Back to Cart</a>
       <hr>
       <h3>Order Summary</h3>
       <hr>
@@ -82,50 +81,50 @@
 </section>
 
 <script>
+  /*
   fetch("/config/")
   .then((result) => { return result.json(); })
   .then((data) => {
     // Initialize Stripe.js
     const stripe = Stripe(data.publicKey);
+    // Event handler
+    document.querySelector("#submitBtn").addEventListener("click", () => {
+      // Get Checkout Session ID
+      fetch("/create-checkout-session/")
+      .then((result) => { return result.json(); })
+      .then((data) => {
+        console.log(data);
+        // Redirect to Stripe Checkout
+        return stripe.redirectToCheckout({sessionId: data.sessionId})
+      })
+      .then((res) => {
+        console.log(res);
+        alert('Transaction completed!')
 
-  // Event handler
-  document.querySelector("#submitBtn").addEventListener("click", () => {
-    // Get Checkout Session ID
-    fetch("/create-checkout-session/")
-    .then((result) => { return result.json(); })
-    .then((data) => {
-      console.log(data);
-      // Redirect to Stripe Checkout
-      return stripe.redirectToCheckout({sessionId: data.sessionId})
-    })
-    .then((res) => {
-      console.log(res);
-      alert('Transaction completed!')
-
-      cart = {}
-      document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+        if (user == 'AnonymousUser') {
+          cart = {}
+          document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+        }
       
-    })
-    .catch((e) => {
-      console.error("Error: ",e);
-    })
-  });
+      })
+      .catch((e) => {
+        console.error("Error: ",e);
+      })
+    });
 });
 
-  let shipping = '{{ shipping }}'
+*/ 
+const form = document.getElementById('form')
 
-  const form = document.getElementById('form')
+csrftoken = form.getElementsByTagName('input')[0].value
 
-  csrftoken = form.getElementsByTagName('input')[0].value
-
-  form.addEventListener('submit', (e) => {
+form.addEventListener('submit', (e) => {
     e.preventDefault()
     console.log("Form Shipping Address Submitted...");
     document.getElementById('form-button').classList.add("hidden")
     document.getElementById('payment-info').classList.remove("hidden")
-  })
+})
 
-  
  /*
 
 

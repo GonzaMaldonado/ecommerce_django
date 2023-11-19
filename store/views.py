@@ -6,6 +6,7 @@ from .models import Order, CartItem, ShippingAddress
 from django.conf import settings
 from django.http.response import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect, render
 
 
 class Home(TemplateView): 
@@ -21,7 +22,6 @@ class Home(TemplateView):
        product['price'] = price.unit_amount / 100
 
     context['products'] = products
-    context['prices'] = prices
     return context
 
 
@@ -43,65 +43,74 @@ class Cart(TemplateView):
   template_name = "store/cart.html"
 
 
-
 class Checkout(TemplateView):
-  template_name = "store/checkout.html"
-
-
-@csrf_exempt
-def stripe_config(request):
-    if request.method == 'GET':
-        stripe_config = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
-        return JsonResponse(stripe_config, safe=False)
-    
+  template_name = 'store/checkout.html'
+  
 
 @csrf_exempt
 def create_checkout_session(request):
-    if request.method == 'GET':
-        domain_url = 'http://localhost:8000/'
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        try:
-            # Create new Checkout Session for the order
-            # Other optional params include:
+  domain_url = 'http://localhost:8000/'
+  stripe.api_key = settings.STRIPE_SECRET_KEY
+  line_items = []
             # [billing_address_collection] - to display billing address details on the page
             # [customer] - if you have an existing Stripe Customer ID
             # [payment_intent_data] - capture the payment later
             # [customer_email] - prefill the email input in the form
             # For full details see https://stripe.com/docs/api/checkout/sessions/create
-            # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
-            
-               
-            line_items = []
-            for item in request.cart:
-                line_items.append({
-                    'price_data': {
-                        'currency': 'usd',
-                        'unit_amount': int(item['price'] * 100),  # El precio debe estar en centavos
-                        'product_data': {
-                            'name': item['name'],
-                        }
-                    },
-                    'quantity': item['quantity']
-                })
+            # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param   
+  if request.user.is_authenticated:
+     cart_items = CartItem.objects.filter(user=request.user)
+     for item in cart_items:
+        line_items.append({
+          'price_data': {
+            'currency': 'usd',
+            'unit_amount': int(item.price) * 100,  # El precio debe estar en centavos
+            'product_data': {
+              'name': item.name,
+            }
+          },
+          'quantity': item.quantity
+        })
+  else:
+      try:
+        cart_items = json.loads(request.COOKIES['cart'])
+      except:
+        cart_items = {}
+      for productId in cart_items:
+        product = stripe.Product.retrieve(productId)
+        price = float(cart_items[productId]['price']) * 100
+        line_items.append({
+          'price_data': {
+            'currency': 'usd',
+            'unit_amount': int(price),  # El precio debe estar en centavos
+            'product_data': {
+              'name': product.name,
+            }
+          },
+          'quantity': cart_items[productId]['quantity']
+        })
 
+  try:
+    
+    checkout_session = stripe.checkout.Session.create(
+      success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url=domain_url + 'cancelled/',
+      payment_method_types=['card'],
+      mode='payment',
+      line_items=line_items
+    )
 
-            checkout_session = stripe.checkout.Session.create(
-                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=domain_url + 'cancelled/',
-                payment_method_types=['card'],
-                mode='payment',
-                line_items=line_items
-            )
-            total = checkout_session['amount_total'] / 100
-            if request.user.is_authenticated:
-              order = Order.objects.create(id=checkout_session['id'] ,user=request.user, total=total)
-              order.save()
-              CartItem.objects.filter(user=request.user).delete()
-            else:
-              Order.objects.create(id=checkout_session['id'], total=total)
-            return JsonResponse({'sessionId': checkout_session['id']})
-        except Exception as e:
-            return JsonResponse({'error': str(e)})
+    total = checkout_session['amount_total'] / 100
+    if request.user.is_authenticated:
+      order = Order.objects.create(id=checkout_session['id'], user=request.user, total=total)
+      order.save()
+      CartItem.objects.filter(user=request.user).delete()
+    else:
+      order = Order.objects.create(id=checkout_session['id'], total=total)
+      order.save()
+  except Exception as e:
+    return JsonResponse({'error': str(e)})
+  return redirect(checkout_session.url, code=303)
 
 
 @csrf_exempt # Para confirmar el pago en su totalidad
@@ -160,11 +169,6 @@ def update_item(request):
     cartItem.delete()
   return JsonResponse('Item was added', safe=False)
 
-
-def process_order(request):
-  pass
-  """ 
-  return JsonResponse('Payment complete', safe=False) """
   
 class SuccessView(TemplateView):
     template_name = 'store/success.html'

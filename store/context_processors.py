@@ -1,27 +1,40 @@
 import json
 import stripe
+from django.conf import settings
 from .models import CartItem
 
 def cart_context(request):
+  cart = []
+  total = 0
+  quantity = 0
+  shipping = False
+
   if request.user.is_authenticated:
-    cart = CartItem.objects.filter(user=request.user)
-    total = sum([item.get_total for item in cart])
-    quantity = sum([item.quantity for item in cart])
-    is_digital = [item.digital for item in cart]
-    shipping = False in is_digital
-    return {'cart': cart, 'total': total, 'quantity': quantity, 'shipping': shipping}
+    cart_items = CartItem.objects.filter(user=request.user)
+    for cart_item in cart_items:        
+        item = {
+          'id': cart_item.id,
+          'name': cart_item.name,
+          'price': cart_item.price,
+          'image': cart_item.image,
+          'quantity': cart_item.quantity,
+          'get_total': cart_item.get_total
+        }
+        cart.append(item)
+
+        total += cart_item.get_total
+        quantity += cart_item.quantity
+
+        if cart_item.digital == False:
+          shipping = True   
   else:
     try:
       cart_cookie = json.loads(request.COOKIES['cart'])
-      total = 0
-      quantity = 0
-      shipping = False
-      cart = []
+      stripe.api_key = settings.STRIPE_SECRET_KEY
 
       for product_id in cart_cookie:
         product = stripe.Product.retrieve(product_id)
-        amount = stripe.Price.list(product=product.id)
-        price = amount.data[0].unit_amount / 100
+        price = float(cart_cookie[product_id]['price'])
         get_total = price * cart_cookie[product_id]['quantity']
         
         item = {
@@ -40,6 +53,7 @@ def cart_context(request):
         if product.metadata.digital == 'False':
           shipping = True       
     except:
-      cart = {} 
-
-    return {'cart': cart, 'total': total, 'quantity': quantity, 'shipping': shipping}
+      cart = {}
+      print('Cart not found')
+  return {'cart': cart, 'total': total, 'quantity': quantity, 'shipping': shipping}
+  

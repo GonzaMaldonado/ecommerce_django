@@ -5,8 +5,9 @@ for (i=0; i < updateCart.length; i++) {
   updateCart[i].addEventListener('click', function(){
     let productId = this.dataset.product
     let action = this.dataset.action
+    let price = this.dataset.price
     if(user == 'AnonymousUser') {
-      addCookieItem(productId, action)
+      addCookieItem(productId, action, price)
     } else {
       updateUserOrder(productId, action)
     }
@@ -14,11 +15,11 @@ for (i=0; i < updateCart.length; i++) {
 }
 
 // Para usuario no autenticados
-function addCookieItem(productId, action) {
+function addCookieItem(productId, action, price) {
 
   if (action == 'add') {
     if (cart[productId] == undefined) {
-      cart[productId] = {'quantity': 1}
+      cart[productId] = {'quantity': 1, 'price': price}
     } else {
       cart[productId]['quantity'] += 1
     }

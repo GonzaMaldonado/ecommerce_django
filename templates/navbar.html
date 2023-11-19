@@ -2,7 +2,7 @@
 
 <header class="p-3 navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
   <div class="container">
-    <a class="navbar-brand ms-5" href="{% url 'home' %}">GM-E</a>
+    <a class="navbar-brand ms-5 font-monospace" href="{% url 'home' %}">GM-E</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -13,7 +13,7 @@
       </form>
 
       <div class="d-flex form-inline my-2 my-lg-0 ml-5">
-        <a href="{% url 'cart' %}">
+        <a href="{% url 'cart_page' %}">
           <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Imagen carrito">
         </a>
         <p id="cart-total">{{ quantity }}</p>
