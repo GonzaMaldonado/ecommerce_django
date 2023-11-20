@@ -58,3 +58,8 @@ class Logout(View):
     logout(request)
     messages.success(request, 'See you later!')
     return redirect('login')
+
+
+class MyProfile(View):
+   def get(self, request, *args, **kwargs):
+      return render(request, 'users/profile.html')

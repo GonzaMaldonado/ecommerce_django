@@ -1,0 +1,54 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %} My Profile {% endblock %}
+
+
+{% block content %}
+
+<div class="row gx-2 gy-1 row-cols-1">
+
+    <div class="mb-4 xl:mx-10">
+
+        <div class="bg-dark rounded-4 p-4">
+            <h1 class="font-monospace fw-bold text-center text-white">
+                Your Personal Details
+            </h1>
+
+            <div class="d-flex align-items-center justify-content-center row row-cols-1 row-cols-lg-2">
+
+                <div class="w-50 h-50">
+                    <img class="w-75 h-75 rounded-5" src="{{ user.photo.url }}" alt="{{ user.username }}"/>
+                </div>
+
+                <div>
+                    <h3 class="mb-2 font-monospace fw-bolder text-black-50">
+                        Username: <span class="text-white-50">{{ user.username }}</span> 
+                    </h3>
+
+                    <h4 class="mb-2 font-monospace fw-bold text-black-50">
+                        Email: <span class="text-white-50">{{ user.email }}</span> 
+                    </h4>
+                    <h5 class="mb-2 font-monospace fw-bold text-black-50">
+                      Date Joined: <span class="text-white-50">{{ user.date_joined|date:"d/m/Y" }}</span> 
+                    </h5>
+                    <!--
+                       url 'update_profile' %}
+                      -->
+                    <a href="" class="px-5 py-3 mt-2 font-monospace fw-bolder text-dark rounded-3 btn btn-outline-light">
+                        <span class="text-nowrap">
+                            Edit Profile
+                          </span>
+                        </a>
+
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
