@@ -1,0 +1,43 @@
+{% extends 'index.html' %}
+
+{% block title %} Update Profile {% endblock %}
+
+
+{% block content %}
+
+<div class="row row-cols-1 align-items-center justify-content-center px-6 py-8 mx-auto">
+    <div class="w-100 rounded-4 bg-dark">
+        <div class="p-6 space-y-4">
+            <h1 class="mt-2 text-center font-monospace fw-bolder text-white">
+                Update Profile
+            </h1>
+
+            <form class="space-y-4" method="POST" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                {% for field in form %}
+
+                <div>
+                    <label class="d-block my-2 text-center small font-monospace text-white-50 placeholder-wave">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                </div>
+
+                {% endfor %}
+
+                <div class="my-3 text-center">
+                    <button type='submit' class="px-5 py-3 font-monospace text-black rounded-3 btn btn-outline-light">
+                        Save Changes
+                    </button>
+                </div>
+
+            </form>
+
+           
+        </div>
+    </div>
+</div>
+
+{% endblock %}

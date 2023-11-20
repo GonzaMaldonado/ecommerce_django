@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class="row gx-2 gy-1 row-cols-1">
+<div class="row gx-2 gy-1 row-cols-1 my-2">
 
     <div class="mb-4 xl:mx-10">
 
@@ -17,8 +17,8 @@
 
             <div class="d-flex align-items-center justify-content-center row row-cols-1 row-cols-lg-2">
 
-                <div class="w-50 h-50">
-                    <img class="w-75 h-75 rounded-5" src="{{ user.photo.url }}" alt="{{ user.username }}"/>
+                <div class="w-50 h-50 rounded">
+                    <img class="w-75 h-75 rounded-circle" src="{{ user.photo.url }}" alt="{{ user.username }}"/>
                 </div>
 
                 <div>
@@ -32,10 +32,8 @@
                     <h5 class="mb-2 font-monospace fw-bold text-black-50">
                       Date Joined: <span class="text-white-50">{{ user.date_joined|date:"d/m/Y" }}</span> 
                     </h5>
-                    <!--
-                       url 'update_profile' %}
-                      -->
-                    <a href="" class="px-5 py-3 mt-2 font-monospace fw-bolder text-dark rounded-3 btn btn-outline-light">
+                    
+                    <a href="{% url 'update_profile' %}" class="px-5 py-3 mt-2 font-monospace fw-bolder text-dark rounded-3 btn btn-outline-light">
                         <span class="text-nowrap">
                             Edit Profile
                           </span>

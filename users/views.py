@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 
-from .forms import RegisterForm
+from .forms import RegisterForm, UpdateUserForm
 
 class Login(View):
 
@@ -63,3 +63,18 @@ class Logout(View):
 class MyProfile(View):
    def get(self, request, *args, **kwargs):
       return render(request, 'users/profile.html')
+
+
+class UpdateProfile(View):
+
+  def get(self, request, *args, **kwargs):
+    form = UpdateUserForm(instance=request.user)
+    return render(request, 'users/update_profile.html', {'form': form})
+  
+  def post(self, request):
+    form = UpdateUserForm(request.POST, request.FILES, instance=request.user)
+    if form.is_valid():
+      form.save()
+      messages.success(request, 'Profile Updated')
+      return redirect('my_profile')
+    messages.succes(request, 'Ups... Something went wrong!')

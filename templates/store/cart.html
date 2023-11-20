@@ -15,7 +15,9 @@
           <th scope="col"><h5>Items: <strong>{{ quantity }}</strong></h5></th>
           <th scope="col"><h5>Total: <strong>${{ total|floatformat:2 }}</strong></h5></th>
           <th scope="col">
+            {% if quantity != 0 %}
             <a href="{% url 'checkout' %}" class="btn btn-success" style="float: right; margin: 5px;">Checkout</a>
+            {% endif %}
           </th>
         </tr>
       </table>

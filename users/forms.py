@@ -28,9 +28,9 @@ class UpdateUserForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(UpdateUserForm, self).__init__(*args, **kwargs)
-    self.fields['username'].widget.attrs['class'] = 'text-dark text-sm rounded-lg d-block w-100 p-2.5 placeholder-gray-400'
-    self.fields['email'].widget.attrs['class'] = 'text-dark text-sm rounded-lg d-block w-100 p-2.5 placeholder-gray-400'
-    self.fields['photo'].widget.attrs['class'] = 'text-dark text-sm rounded-lg d-block w-100 p-2.5 placeholder-gray-400'
+    self.fields['username'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1'
+    self.fields['email'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1 bg-body-secondary'
+    self.fields['photo'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1'
     
     self.fields['username'].widget.attrs['placeholder'] = 'Username'
     self.fields['email'].widget.attrs['placeholder'] = 'Email'
