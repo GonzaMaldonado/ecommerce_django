@@ -10,10 +10,10 @@ class RegisterForm(UserCreationForm):
 
   def __init__(self, *args, **kwargs):
     super(RegisterForm, self).__init__(*args, **kwargs)
-    self.fields['username'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-lg d-block w-100 p-1 placeholder-gray-400'
-    self.fields['email'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-lg d-block w-100 p-1 placeholder-gray-400'
-    self.fields['password1'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-lg d-block w-100 p-1 placeholder-gray-400'
-    self.fields['password2'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-lg d-block w-100 p-1 placeholder-gray-400'
+    self.fields['username'].widget.attrs['class'] = 'form-control text-dark small rounded-4 w-100'
+    self.fields['email'].widget.attrs['class'] = 'form-control text-dark small rounded-4 w-100'
+    self.fields['password1'].widget.attrs['class'] = 'form-control text-dark small rounded-4 w-100'
+    self.fields['password2'].widget.attrs['class'] = 'form-control text-dark small rounded-4 w-100'
     self.fields['username'].widget.attrs['placeholder'] = 'Username'
     self.fields['email'].widget.attrs['placeholder'] = 'Email'
     self.fields['password1'].widget.attrs['placeholder'] = 'Password'
@@ -28,9 +28,9 @@ class UpdateUserForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(UpdateUserForm, self).__init__(*args, **kwargs)
-    self.fields['username'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1'
-    self.fields['email'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1 bg-body-secondary'
-    self.fields['photo'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto p-1'
+    self.fields['username'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto'
+    self.fields['email'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto bg-body-secondary'
+    self.fields['photo'].widget.attrs['class'] = 'form-control text-dark text-sm rounded-2 d-block w-50 mx-auto'
     
     self.fields['username'].widget.attrs['placeholder'] = 'Username'
     self.fields['email'].widget.attrs['placeholder'] = 'Email'
