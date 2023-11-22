@@ -77,4 +77,8 @@ class UpdateProfile(View):
       form.save()
       messages.success(request, 'Profile Updated')
       return redirect('my_profile')
-    messages.succes(request, 'Ups... Something went wrong!')
+    
+    error_text = form.errors.as_text()
+    error = error_text.split('*')
+    messages.success(request, f'{error[2]}')
+    return HttpResponseRedirect((request.META.get('HTTP_REFERER')))
