@@ -10,55 +10,6 @@
 
 {% block content %}
 <section class="row">
-  <article class="col-lg-6">
-    <div class="box-element" id="form-wrapper">
-      <form action="" id="form">
-        {% csrf_token %}
-        {% if not request.user.is_authenticated %}
-        <div id="user-info">
-          <div class="form-field">
-            <input type="text" name="name" placeholder="Your name..." class="form-control" required>
-          </div>
-          <div class="form-field">
-            <input type="email" name="email" placeholder="Your email..." class="form-control" required>
-          </div>
-        </div>
-        {% endif %}
-
-        {% if shipping %}
-        <div id="shipping-info">
-          <hr>
-          <h4>Shipping Information:</h4>
-          <hr>
-          <div class="form-field">
-            <input type="text" name="address" placeholder="Address..." class="form-control">
-          </div>
-          <div class="form-field">
-            <input type="text" name="city" placeholder="City..." class="form-control">
-          </div>
-          <div class="form-field">
-            <input type="text" name="zipcode" placeholder="Zip code..." class="form-control">
-          </div>
-          <div class="form-field">
-            <input type="text" name="state" placeholder="State..." class="form-control">
-          </div>
-        </div>
-        {% endif %}
-
-        <hr>
-        <input type="submit" id="form-button" class="btn btn-success col-12" value="Continue">
-
-      </form>
-    </div>
-
-    <br>
-
-    <form action="/create-checkout-session/" method="get" class="box-element text-center hidden" id="payment-info">
-      <small>Payment card</small>
-      <button type="submit" id="checkout-button" class="button is-primary btn btn-primary w-100 rounded mt-1 mb-2 p-2">Checkout</button>
-    </form>
-
-  </article>
 
   <article class="col-lg-6">
     <div class="box-element">
@@ -78,106 +29,13 @@
       <h5>Total:&nbsp; &nbsp; ${{ total|floatformat:2 }}</h5>
     </div>
   </article>
+
+  <article class="col-lg-6">
+    <form action="/create-checkout-session/" method="get" class="box-element text-center">
+      <small>Payment card</small>
+      <button type="submit" id="checkout-button" class="button is-primary btn btn-primary w-100 rounded mt-1 mb-2 p-2">Checkout</button>
+    </form>
+  </article>
 </section>
 
-<script>
-  /*
-  fetch("/config/")
-  .then((result) => { return result.json(); })
-  .then((data) => {
-    // Initialize Stripe.js
-    const stripe = Stripe(data.publicKey);
-    // Event handler
-    document.querySelector("#submitBtn").addEventListener("click", () => {
-      // Get Checkout Session ID
-      fetch("/create-checkout-session/")
-      .then((result) => { return result.json(); })
-      .then((data) => {
-        console.log(data);
-        // Redirect to Stripe Checkout
-        return stripe.redirectToCheckout({sessionId: data.sessionId})
-      })
-      .then((res) => {
-        console.log(res);
-        alert('Transaction completed!')
-
-        if (user == 'AnonymousUser') {
-          cart = {}
-          document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
-        }
-      
-      })
-      .catch((e) => {
-        console.error("Error: ",e);
-      })
-    });
-});
-
-*/ 
-const form = document.getElementById('form')
-
-csrftoken = form.getElementsByTagName('input')[0].value
-
-form.addEventListener('submit', (e) => {
-    e.preventDefault()
-    console.log("Form Shipping Address Submitted...");
-    document.getElementById('form-button').classList.add("hidden")
-    document.getElementById('payment-info').classList.remove("hidden")
-})
-
- /*
-
-
-  function submitFormData(){
-    console.log("Payment button clicked");
-
-    const userFormData = {
-      'name':null,
-      'email':null,
-      'total':total,
-    }
-
-    const shippingInfo = {
-      'address':null,
-      'city':null,
-      'state':null,
-      'zipcode':null,
-    }
-
-    if(shipping != 'False') {
-      shippingInfo.address = form.address.value
-      shippingInfo.city = form.city.value
-      shippingInfo.state = form.state.value
-      shippingInfo.zipcode = form.zipcode.value
-    }
-
-    if(user == 'AnonymousUser') {
-      userFormData.name = form.name.value
-      userFormData.email = form.email.value
-    }
-
-    let url = '/process_order/'
-
-    fetch(url, {
-      method: "POST",
-      headers:{
-          'Content-Type':'application/json',
-          'X-CSRFToken': csrftoken,
-      },
-      body: JSON.stringify({'form':userFormData,'shipping':shippingInfo})
-    })
-    .then((response)=>{
-        return response.json();
-    }).then((data)=>{
-      console.log('Success:', data)
-      alert('Transaction completed!')
-
-      cart = {}
-      document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
-      
-      window.location.href = "{% url 'home' %}"
-    }) 
-  }
-    */
-</script>
 {% endblock %}

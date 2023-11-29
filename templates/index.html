@@ -47,14 +47,17 @@
       return null
     }
 
-    let cart = JSON.parse(getCookie('cart'))
+    if(user == 'AnonymousUser') {
 
-    if(cart == undefined) {
-      cart = {}
-      document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+      let cart = JSON.parse(getCookie('cart'))
+      
+      if(cart == undefined) {
+        cart = {}
+        document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+      }
+    
+      console.log('cart:', cart);
     }
-
-    console.log('cart:', cart);
   </script>
 
   <title>Ecommerce | {% block title %}{% endblock %}</title>

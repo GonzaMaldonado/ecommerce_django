@@ -64,11 +64,27 @@ Getting Started
 - open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser
 
 
+Getting Started Stripe
+-----------
+ -Create account stripe
+ -Next, register for a Stripe account (if you haven't already done so) and navigate to the dashboard. Click on "Developers"
+ -Then click on "API keys"
+ -get tokens
+    -STRIPE_PUBLISHABLE_KEY
+    -STRIPE_SECRET_KEY  
+ -Create Products
+  -Next, we need to create a product to sell.
+    Click "Products" and then "Add product":
+  -all product metadata digital = bool
+ -To confirm a charge was actually made, go back to the Stripe dashboard under "Payments"
+
+
 ### Enviroment Variables
 ```
 SECRET_KEY="secret_key_django"
 STRIPE_SECRET_KEY = "secret_key_stripe_para realizar_pagos"
 ```
+
 
 
 ## Author

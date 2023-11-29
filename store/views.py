@@ -57,70 +57,74 @@ class Checkout(TemplateView):
   template_name = 'store/checkout.html'
   
 
+class SuccessView(TemplateView):
+    template_name = 'store/success.html'
+
+
+class CancelledView(TemplateView):
+    template_name = 'store/cancelled.html'
+
+
 @csrf_exempt
 def create_checkout_session(request):
-  domain_url = 'http://localhost:8000/'
-  stripe.api_key = settings.STRIPE_SECRET_KEY
-  line_items = []
-            # [billing_address_collection] - to display billing address details on the page
-            # [customer] - if you have an existing Stripe Customer ID
-            # [payment_intent_data] - capture the payment later
-            # [customer_email] - prefill the email input in the form
-            # For full details see https://stripe.com/docs/api/checkout/sessions/create
-            # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param   
-  if request.user.is_authenticated:
-     cart_items = CartItem.objects.filter(user=request.user)
-     for item in cart_items:
-        line_items.append({
-          'price_data': {
-            'currency': 'usd',
-            'unit_amount': int(item.price) * 100,  # El precio debe estar en centavos
-            'product_data': {
-              'name': item.name,
-            }
-          },
-          'quantity': item.quantity
-        })
-  else:
-      try:
-        cart_items = json.loads(request.COOKIES['cart'])
-      except:
-        cart_items = {}
-      for productId in cart_items:
-        product = stripe.Product.retrieve(productId)
-        price = float(cart_items[productId]['price']) * 100
-        line_items.append({
-          'price_data': {
-            'currency': 'usd',
-            'unit_amount': int(price),  # El precio debe estar en centavos
-            'product_data': {
-              'name': product.name,
-            }
-          },
-          'quantity': cart_items[productId]['quantity']
-        })
-
-  try:
-    
-    checkout_session = stripe.checkout.Session.create(
-      success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url=domain_url + 'cancelled/',
-      payment_method_types=['card'],
-      mode='payment',
-      line_items=line_items
-    )
-
-    total = checkout_session['amount_total'] / 100
+  if request.method == 'GET':
+    domain_url = 'http://localhost:8000/'
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    line_items = []
     if request.user.is_authenticated:
-      order = Order.objects.create(id=checkout_session['id'], user=request.user, total=total)
-      order.save()
-      CartItem.objects.filter(user=request.user).delete()
+      cart_items = CartItem.objects.filter(user=request.user)
+      for item in cart_items:
+          line_items.append({
+            'price_data': {
+              'currency': 'usd',
+              'unit_amount': int(item.price) * 100,  # El precio debe estar en centavos
+              'product_data': {
+                'name': item.name,
+              }
+            },
+            'quantity': item.quantity
+          })
     else:
-      order = Order.objects.create(id=checkout_session['id'], total=total)
-      order.save()
-  except Exception as e:
-    return JsonResponse({'error': str(e)})
-  return redirect(checkout_session.url, code=303)
+        try:
+          cart_items = json.loads(request.COOKIES['cart'])
+        except:
+          cart_items = {}
+        for productId in cart_items:
+          product = stripe.Product.retrieve(productId)
+          price = float(cart_items[productId]['price']) * 100
+          line_items.append({
+            'price_data': {
+              'currency': 'usd',
+              'unit_amount': int(price),  # El precio debe estar en centavos
+              'product_data': {
+                'name': product.name,
+              }
+            },
+            'quantity': cart_items[productId]['quantity']
+          })
+
+    try:
+      
+      checkout_session = stripe.checkout.Session.create(
+        success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url=domain_url + 'cancelled/',
+        payment_method_types=['card'],
+        mode='payment',
+        line_items=line_items,
+        shipping_address_collection={'allowed_countries': ['AR']},
+      )
+      print("Checkout Session \n", checkout_session)
+      total = checkout_session['amount_total'] / 100
+      if request.user.is_authenticated:
+        order = Order.objects.create(id=checkout_session['id'], user=request.user, total=total)
+        order.save()
+        CartItem.objects.filter(user=request.user).delete()
+      else:
+        order = Order.objects.create(id=checkout_session['id'], total=total)
+        order.save()
+    except Exception as e:
+      return JsonResponse({'error': str(e)})
+    return redirect(checkout_session.url, code=303)
 
 
 @csrf_exempt # Para confirmar el pago en su totalidad
@@ -135,6 +139,7 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
+        print(event)
     except ValueError as e:
         # Invalid payload
         return HttpResponse(status=400)
@@ -178,11 +183,3 @@ def update_item(request):
   if cartItem.quantity <= 0:
     cartItem.delete()
   return JsonResponse('Item was added', safe=False)
-
-  
-class SuccessView(TemplateView):
-    template_name = 'store/success.html'
-
-
-class CancelledView(TemplateView):
-    template_name = 'store/cancelled.html'
